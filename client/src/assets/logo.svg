@@ -1,0 +1,15 @@
+<svg viewBox="50 40 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer shape (rounded left and right) -->
+  <rect x="50" y="20" width="100" height="120" rx="40" ry="40" fill="#3B34C1"/>
+  
+  <!-- Inner rounded rectangle -->
+  <rect x="60" y="60" width="80" height="55" rx="25" fill="#8B91F0"/>
+  
+  <!-- Left eye -->
+  <circle cx="80" cy="85" r="12" fill="black"/>
+  <circle cx="77" cy="82" r="4" fill="white"/>
+  
+  <!-- Right eye -->
+  <circle cx="120" cy="85" r="12" fill="black"/>
+  <circle cx="117" cy="82" r="4" fill="white"/>
+</svg>

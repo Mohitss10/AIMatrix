@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+@import "tailwindcss";
+
+*{
+  font-family: "Outfit", sans-serif;
+}
+
+@theme{
+  --color-primary:#5044E5;
+}
+
+.reset-tw,.reset-tw *{
+ all: revert !important;
+}
+
+.cl-drawerRoot{
+  z-index:10
+}
+
+
+/* Hide scrollbar for Chrome, Safari, and Opera */
+/* Hide scrollbar for Chrome, Safari, Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge, and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+
+
+html {
+  scrollbar-width: none; /* Firefox */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Edge, Safari */
+}
+
+@keyframes metal {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.animate-metal {
+  animation: metal 4s linear infinite;
+}
+
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+
+/* src/index.css */
+
+/* Dark mode */
+body.dark {
+  background-color: #060d1d;
+  color: #cbd5e1;
+}
+
+/* Light mode */
+body.light {
+  background-color: rgb(252, 243, 243);
+  color: rgb(73, 90, 107);
+}
+
