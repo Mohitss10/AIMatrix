@@ -1,7 +1,7 @@
 import React from 'react'
 import { assets } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
-import { useClerk, UserButton, useUser } from '@clerk/clerk-react'
+import { useUser } from '@clerk/clerk-react'
 import { motion } from 'framer-motion'
 import ThemeToggle from './ThemeToggle'
 
@@ -19,21 +19,25 @@ const Navbar = () => {
       {/* Left: Logo */}
       <div
         className="flex items-center gap-2 cursor-pointer"
-        // onClick={() => navigate('./Hero')}
+        onClick={() => navigate('/')}
       >
         <img src={assets.logo} alt="logo" className="w-7" />
-        {/* Text only visible on small screens */}
-        <span className="font-semibold bg-gradient-to-r from-gray-300 via-gray-400  to-gray-500 bg-clip-text text-transparent text-2xl">
+        <span className="font-semibold bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 bg-clip-text text-transparent text-2xl">
           AIMatrix
         </span>
       </div>
 
-      {/* Center: Theme toggle */}
-      <div className="flex gap-2 items-center">
-        {/* Auth buttons */}
-        <div className="flex items-center gap-3">
-          {user ? <UserButton /> : null}
-        </div>
+      {/* Right: Theme toggle + Profile */}
+      <div className="flex gap-3 items-center">
+        {/* Profile Avatar */}
+        {user ? (
+          <img
+            src={user.imageUrl}
+            alt="profile"
+            onClick={() => navigate('/account')}
+            className="w-8 h-8 rounded-full cursor-pointer hover:scale-105 transition"
+          />
+        ) : null}
 
         {/* Theme toggle */}
         <ThemeToggle />

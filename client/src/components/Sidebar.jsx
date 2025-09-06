@@ -1,8 +1,18 @@
 import { assets } from '../assets/assets';
 import { Protect, useClerk, useUser } from '@clerk/clerk-react';
-import { House, SquarePen, Eraser, FileText, Hash, Image, Scissors, Users, LogOut } from 'lucide-react';
+import {
+  House,
+  SquarePen,
+  Eraser,
+  FileText,
+  Hash,
+  Image,
+  Scissors,
+  Users,
+  LogOut,
+} from 'lucide-react';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import { motion } from 'framer-motion';
 
@@ -19,12 +29,17 @@ const navItems = [
 
 const Sidebar = ({ sidebar, setSidebar }) => {
   const { user } = useUser();
-  const { signOut, openUserProfile } = useClerk();
+  const { signOut } = useClerk();
+  const navigate = useNavigate(); // ✅ Use navigation
 
   return (
     <motion.div
-       
-      transition={{ type: 'spring', stiffness: 120, damping: 20, duration: 0.4 }}
+      transition={{
+        type: 'spring',
+        stiffness: 120,
+        damping: 20,
+        duration: 0.4,
+      }}
       className={`
         fixed top-14 left-0 z-50
         h-[calc(100vh-55px)] sm:h-[86.9vh] w-60
@@ -35,7 +50,11 @@ const Sidebar = ({ sidebar, setSidebar }) => {
       {/* Scrollable container */}
       <div className="h-full flex flex-col overflow-y-auto">
         <div className="py-6">
-          <img src={user.imageUrl} alt="User" className="w-14 rounded-full mx-auto" />
+          <img
+            src={user.imageUrl}
+            alt="User"
+            className="w-14 rounded-full mx-auto"
+          />
           <h1 className="mt-2 text-center text-sm">{user.fullName}</h1>
 
           <div className="mt-1 pt-6 border-t border-white/10 space-y-2 text-sm">
@@ -58,23 +77,35 @@ const Sidebar = ({ sidebar, setSidebar }) => {
           </div>
         </div>
 
-        <div className="px-2 py-4 flex items-center justify-between">
-          <div onClick={openUserProfile} className="flex items-center gap-2 cursor-pointer">
-            <img src={user.imageUrl} className="w-6 h-6 rounded-full" alt="user" />
+        {/* Profile Redirect to /account */}
+        <div
+          onClick={() => navigate('/account')}
+          className="px-2 py-4 flex items-center justify-between cursor-pointer hover:bg-white/10 rounded-lg transition"
+        >
+          <div className="flex items-center gap-2">
+            <img
+              src={user.imageUrl}
+              className="w-6 h-6 rounded-full"
+              alt="user"
+            />
             <div>
               <h1 className="text-sm">{user.fullName}</h1>
               <p className="text-xs">
-                <Protect plan="premium" fallback="Free">Premium</Protect> Plan
+                <Protect plan="premium" fallback="Free">
+                  Premium
+                </Protect>{' '}
+                Plan
               </p>
             </div>
           </div>
           <LogOut
-            onClick={() => signOut()}
-            className="w-5 h-5  cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation(); // prevent navigating when logging out
+              signOut();
+            }}
+            className="w-5 h-5 cursor-pointer"
           />
         </div>
-
-
 
         <div className="block sm:hidden mt-2">
           <ThemeToggle />

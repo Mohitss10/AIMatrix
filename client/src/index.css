@@ -80,3 +80,17 @@ body.light {
   color: rgb(73, 90, 107);
 }
 
+
+
+/* Dark mode for PricingTable only */
+.pricing-table-wrapper .clerk-pricing-table {
+  background-color: #060d1d !important;
+  color: #cbd5e1 !important;
+}
+
+/* Light mode for PricingTable only */
+.pricing-table-wrapper.light .clerk-pricing-table {
+  background-color: rgb(252, 243, 243) !important;
+  color: rgb(73, 90, 107) !important;
+}
+
