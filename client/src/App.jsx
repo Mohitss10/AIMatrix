@@ -36,16 +36,20 @@ const AccountPage = () => {
       transition={{ duration: 0.5, ease: 'easeInOut' }}
     >
       {/* 🔹 Back Button (responsive position) */}
-      <button
-        onClick={() => navigate(-1)}
-        className="
-          absolute z-50 p-2 rounded-full bg-black/30 hover:bg-black/60 transition
-          top-4 left-4 md:top-6 md:left-6
-          md:block
-        "
-      >
-        <ArrowLeft className="w-6 h-6 text-white" />
-      </button>
+{/* 🔹 Back Button (responsive, right side with offset) */}
+{/* 🔹 Back Button (responsive: right on mobile, left on desktop) */}
+<button
+  onClick={() => navigate(-1)}
+  className="
+    absolute z-50 p-2 rounded-full hover:bg-black/10 transition
+    top-4 right-5 md:top-6 md:left-6 md:right-auto
+  "
+>
+  <ArrowLeft className="w-6 h-6 text-black md:text-white" />
+</button>
+
+
+
 
       {/* 🔹 Clerk Profile */}
       <UserProfile
