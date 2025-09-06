@@ -35,10 +35,14 @@ const AccountPage = () => {
       exit={{ opacity: 0, y: -40 }}
       transition={{ duration: 0.5, ease: 'easeInOut' }}
     >
-      {/* 🔹 Back Arrow → goes to previous page */}
+      {/* 🔹 Back Button (responsive position) */}
       <button
         onClick={() => navigate(-1)}
-        className="absolute top-6 left-6 p-2 rounded-full bg-black/20 hover:bg-black/60 transition"
+        className="
+          absolute z-50 p-2 rounded-full bg-black/30 hover:bg-black/60 transition
+          top-4 left-4 md:top-6 md:left-6
+          md:block
+        "
       >
         <ArrowLeft className="w-6 h-6 text-white" />
       </button>
@@ -49,18 +53,20 @@ const AccountPage = () => {
           elements: {
             rootBox: 'w-full h-full flex justify-center items-center',
             card:
-              'w-full max-w-5xl bg-black/50 text-white backdrop-blur-xl p-8 rounded-2xl shadow-2xl flex',
+              'w-full max-w-5xl text-white backdrop-blur-xl p-4 sm:p-8 rounded-2xl shadow-2xl flex flex-col md:flex-row relative',
             navbar:
-              'bg-transparent border-r border-white/20 px-4 py-6 w-64',
+              'hidden md:block bg-transparent border-r border-white/20 px-4 py-6 w-64',
             navbarItem:
               'text-gray-300 hover:text-white hover:bg-white/10 rounded-lg px-3 py-2 transition',
             navbarItemActive: 'text-white rounded-lg',
             navbarItemText: 'font-medium',
-            content: 'flex-1 p-6 bg-white/5 rounded-xl ml-4',
-            headerTitle: 'text-3xl font-bold mb-2',
-            headerSubtitle: 'text-sm text-gray-300',
+            content:
+              'flex-1 p-4 sm:p-6 bg-white/5 rounded-xl md:ml-4 relative',
+            header: 'relative flex items-center justify-between mb-4',
+            headerTitle: 'text-2xl sm:text-3xl font-bold',
+            headerSubtitle: 'text-xs sm:text-sm text-gray-300',
             profileSection: 'rounded-xl p-4 bg-white/10 mb-4',
-            profileSectionTitle: 'text-lg font-semibold ',
+            profileSectionTitle: 'text-base sm:text-lg font-semibold',
             formButtonPrimary:
               'bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg px-4 py-2 transition',
           },
