@@ -42,7 +42,7 @@ const AccountPage = () => {
   onClick={() => navigate(-1)}
   className="
     absolute z-50 p-2 rounded-full hover:bg-black/10 transition
-    top-4 right-5 md:top-6 md:left-6 md:right-auto
+    top-6 right-5 md:top-6 md:left-6 md:right-auto
   "
 >
   <ArrowLeft className="w-6 h-6 text-black md:text-white" />
