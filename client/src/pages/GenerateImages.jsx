@@ -142,7 +142,7 @@ const GenerateImages = () => {
 
         {/* Right Column */}
 {/* Right Column */}
-<div className="flex-1 gap-4 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10 relative">
+<div className="flex-1 gap-2 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10 relative">
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-3">
       <Image className="w-5 h-5 text-[#00AD25]" />
@@ -150,7 +150,9 @@ const GenerateImages = () => {
     </div>
 
     {/* ✅ Save Image Button (Top-right) */}
-    {content && (
+    
+  </div>
+  {content && (
       <button
         type="button"
         onClick={async () => {
@@ -183,13 +185,12 @@ const GenerateImages = () => {
             console.error("Save error:", err);
           }
         }}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+        className="flex items-center justify-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
       >
         <Download className="w-4 h-4" />
         Save Image
       </button>
     )}
-  </div>
 
   {!content ? (
     <div className="flex-1 flex justify-center items-center">

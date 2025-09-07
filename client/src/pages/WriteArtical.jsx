@@ -144,75 +144,82 @@ const WriteArticle = () => {
         </form>
 
         {/* RIGHT COLUMN */}
-        <div className="flex-1 gap-4 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Edit className="w-5 h-5 text-[#4A7AFF]" />
-              <h1 className="text-xl font-semibold">Generated article</h1>
-            </div>
+{/* RIGHT COLUMN */}
+<div className="flex-1 w-full h-[60vh] max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3">
+      <Edit className="w-5 h-5 text-[#4A7AFF]" />
+      <h1 className="text-xl font-semibold">Generated article</h1>
+    </div>
+  </div>
 
-            {content && (
-              <button
-                onClick={handleSavePDF}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-              >
-                <Download className="w-4 h-4" />
-                Save PDF
-              </button>
-            )}
-          </div>
+  {content && (
+    <button
+      onClick={handleSavePDF}
+      className="flex  sm:flex-row justify-center items-center gap-1 sm:gap-2 px-3 py-1.5 mt-2 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+    >
+      <Download className="w-4 h-4" />
+      <span>Save PDF</span>
+    </button>
+  )}
 
-          {!content ? (
-            <div className="flex-1 flex justify-center items-center">
-              <div className="text-sm flex flex-col items-center gap-5">
-                <Edit className="w-9 h-9" />
-                <p>Enter a topic and click "Generate article" to get started</p>
-              </div>
-            </div>
-          ) : (
-            <div
-              ref={articleRef}
-              className="scrollbar-hide mt-3 h-full overflow-y-scroll text-sm markdown-body  p-5 rounded-lg"
-            >
-              <Markdown
-                components={{
-                  h1: ({ node, ...props }) => (
-                    <h1 className="text-2xl font-bold mt-4 mb-2" {...props} />
-                  ),
-                  h2: ({ node, ...props }) => (
-                    <h2
-                      className="text-xl font-semibold mt-3 mb-2"
-                      {...props}
-                    />
-                  ),
-                  h3: ({ node, ...props }) => (
-                    <h3
-                      className="text-lg font-semibold mt-2 mb-1"
-                      {...props}
-                    />
-                  ),
-                  p: ({ node, ...props }) => (
-                    <p className="text-sm leading-relaxed mb-2" {...props} />
-                  ),
-                  li: ({ node, ...props }) => (
-                    <li
-                      className="list-disc list-inside text-sm mb-1"
-                      {...props}
-                    />
-                  ),
-                }}
-              >
-                {content}
-              </Markdown>
+  {!content ? (
+    <div className="flex-1 flex justify-center items-center">
+      <div className="text-sm flex flex-col items-center gap-5">
+        <Edit className="w-9 h-9" />
+        <p>Enter a topic and click "Generate article" to get started</p>
+      </div>
+    </div>
+  ) : (
+    <div
+      ref={articleRef}
+      className="mt-3 overflow-y-auto text-sm markdown-body p-5 rounded-lg custom-scrollbar h-[60vh] sm:h-[70vh]"
+    >
+      <Markdown
+        components={{
+          h1: ({ node, ...props }) => (
+            <h1 className="text-2xl font-bold mt-4 mb-2" {...props} />
+          ),
+          h2: ({ node, ...props }) => (
+            <h2 className="text-xl font-semibold mt-3 mb-2" {...props} />
+          ),
+          h3: ({ node, ...props }) => (
+            <h3 className="text-lg font-semibold mt-2 mb-1" {...props} />
+          ),
+          p: ({ node, ...props }) => (
+            <p className="text-sm leading-relaxed mb-2" {...props} />
+          ),
+          li: ({ node, ...props }) => (
+            <li className="list-disc list-inside text-sm mb-1" {...props} />
+          ),
+        }}
+      >
+        {content}
+      </Markdown>
+    </div>
+  )}
+</div>
 
-
-            </div>
-          )}
-          
-        </div>
 
       </div>
-              <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block"> <h2 className="text-lg font-bold mb-3">Write High-Quality Articles with AI</h2> <p className="text-sm mb-2"> Our AI article writer helps you create engaging, well-structured, and SEO-friendly content in just minutes — perfect for blogs, websites, and social media. </p> <p className="text-sm mb-2"> Simply enter your topic or keywords, and our system will generate a complete article with relevant headings, clear formatting, and a natural flow. </p> <p className="text-sm"> Save time, boost productivity, and focus on your ideas while AI handles the heavy lifting of writing. </p> </div>
+      <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
+        {" "}
+        <h2 className="text-lg font-bold mb-3">
+          Write High-Quality Articles with AI
+        </h2>{" "}
+        <p className="text-sm mb-2">
+          {" "}
+          Our AI article writer helps you create engaging, well-structured, and
+          SEO-friendly content in just minutes — perfect for blogs, websites,
+          and social media.{" "}
+        </p>{" "}
+       
+        <p className="text-sm">
+          {" "}
+          Save time, boost productivity, and focus on your ideas while AI
+          handles the heavy lifting of writing.{" "}
+        </p>{" "}
+      </div>
     </div>
   );
 };

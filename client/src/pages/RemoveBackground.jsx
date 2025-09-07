@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eraser, Sparkles, ChevronDown } from 'lucide-react';
+import { Eraser, Sparkles, ChevronDown ,Download} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
@@ -125,65 +125,73 @@ const RemoveBackground = () => {
           </div>
         </div>
 
-        {/* Right Column */}
-        <div className="flex-1 gap-4 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
-          <div className="flex items-center gap-3">
-            <Eraser className="w-5 h-5 text-[#FF4938]" />
-            <h1 className="text-xl font-semibold ">Processed Image</h1>
-          </div>
+{/* Right Column */}
+<div className="flex-1 gap-2 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
+  <div className="flex flex-col gap-2">
+    <div className="flex items-center gap-3">
+      <Eraser className="w-5 h-5 text-[#FF4938]" />
+      <h1 className="text-xl font-semibold">Processed Image</h1>
+    </div>
 
-          {!processedImage ? (
-            <div className="flex-1 flex justify-center items-center">
-              <div className="text-sm flex flex-col items-center gap-5 ">
-                <Eraser className="w-9 h-9" />
-                <p>Upload an image and click "Remove Background" to get started</p>
-              </div>
-            </div>
-          ) : (
-            <div className="mt-3 flex-1 overflow-y-scroll scrollbar-hide flex flex-col gap-4">
-              <img
-                src={processedImage}
-                alt="Processed"
-                className="max-w-full rounded-lg border border-white/10"
-              />
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    const response = await fetch(processedImage, { mode: 'cors' });
-                    if (!response.ok) throw new Error('Image fetch failed');
+    {/* Save Image button under heading */}
+    {processedImage && (
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const response = await fetch(processedImage, { mode: 'cors' });
+            if (!response.ok) throw new Error('Image fetch failed');
 
-                    const blob = await response.blob();
-                    const blobUrl = window.URL.createObjectURL(blob);
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
 
-                    const link = document.createElement('a');
-                    link.href = blobUrl;
-                    link.download = 'background-removed.png';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(blobUrl);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = 'background-removed.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
 
-                    toast.success("Image downloaded!", {
-                      duration: 3000,
-                      style: { background: '#334155', color: '#ffffff', border: '1px solid #00AD25' },
-                      icon: '✅'
-                    });
-                  } catch (err) {
-                    toast.error("Download failed!", {
-                      duration: 3000,
-                      style: { background: '#334155', color: '#ffffff', border: '1px solid #ff4d4d' },
-                      icon: '⚠️'
-                    });
-                  }
-                }}
-                className="bg-slate-700/10 border border-white/20  px-4 py-2 rounded-lg text-sm text-center w-fit backdrop-blur-sm"
-              >
-                Download Image
-              </button>
-            </div>
-          )}
-        </div>
+            toast.success("Image saved!", {
+              duration: 3000,
+              style: { background: '#334155', color: '#ffffff', border: '1px solid #00AD25' },
+              icon: '✅'
+            });
+          } catch (err) {
+            toast.error("Save failed!", {
+              duration: 3000,
+              style: { background: '#334155', color: '#ffffff', border: '1px solid #ff4d4d' },
+              icon: '⚠️'
+            });
+          }
+        }}
+        className="flex  sm:flex-row justify-center items-center gap-1 sm:gap-2 px-3 py-1.5 mt-2 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+      >
+        <Download className="w-4 h-4" />
+      <span>Save PDF</span>
+      </button>
+    )}
+  </div>
+
+  {!processedImage ? (
+    <div className="flex-1 flex justify-center items-center">
+      <div className="text-sm flex flex-col items-center gap-5 ">
+        <Eraser className="w-9 h-9" />
+        <p>Upload an image and click "Remove Background" to get started</p>
+      </div>
+    </div>
+  ) : (
+    <div className="mt-3 flex-1 overflow-y-scroll scrollbar-hide flex flex-col gap-4">
+      <img
+        src={processedImage}
+        alt="Processed"
+        className="max-w-full rounded-lg border border-white/10"
+      />
+    </div>
+  )}
+</div>
+
       </div>
       <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
         <h2 className="text-lg font-bold mb-3">Remove Background from Images Instantly</h2>

@@ -74,62 +74,42 @@ const Dashboard = () => {
 
       {/* 🔥 Responsive Video Ad Section */}
       {/* 🔥 Responsive Video Ad Section */}
-      <div className="mt-5 rounded-xl overflow-hidden shadow-lg border border-white/40 flex flex-col lg:flex-row justify-center items-center lg:gap-6 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-600">
-        {/* Video Section */}
-        <div className="relative w-full lg:w-1/2 group">
-          <video
-            ref={videoRef}
-            className="w-full h-auto max-h-[60vh] object-cover rounded-xl"
-            src="/ad1.mp4" // <-- put your ad.mp4 in public/ folder
-            autoPlay
-            loop
-            muted
-            playsInline
-          />
+     {/* 🔥 Fullscreen Video Ad Section */}
+<div className="mt-5 relative w-full h-[67vh] rounded-xl overflow-hidden shadow-lg border border-white/10">
+  <video
+    ref={videoRef}
+    className="w-full h-full object-cover"
+    src="/ad2.mp4"
+    autoPlay
+    loop
+    muted
+    playsInline
+  />
 
-          {/* Controls (Visible on hover) */}
-          {/* Play/Pause Button (bottom center) */}
-          <div className="absolute inset-0 flex items-end justify-center pb-3 opacity-0 group-hover:opacity-100 transition">
-            <button
-              onClick={togglePlay}
-              className="bg-black/50 text-white p-3 rounded-full"
-            >
-              {isPlaying ? (
-                <Pause className="w-6 h-6" />
-              ) : (
-                <Play className="w-6 h-6" />
-              )}
-            </button>
-          </div>
+  {/* ✅ Play/Pause Button */}
+  {/* Mobile: always visible | Desktop: only on hover */}
+  <div className="absolute inset-0 flex items-end justify-center pb-6">
+    <button
+      onClick={togglePlay}
+      className="bg-black/50 text-white p-3 rounded-full
+                 flex  sm:group-hover:opacity-100 transition"
+    >
+      {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+    </button>
+  </div>
 
-          {/* Mute Button (bottom right) */}
-          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition">
-            <button
-              onClick={toggleMute}
-              className="bg-black/50 text-white p-1 rounded-full"
-            >
-              {isMuted ? (
-                <VolumeX className="w-4 h-4" />
-              ) : (
-                <Volume2 className="w-4 h-4" />
-              )}
-            </button>
-          </div>
-        </div>
+  {/* ✅ Mute Button */}
+  <div className="absolute bottom-2 right-2">
+    <button
+      onClick={toggleMute}
+      className="bg-black/50 text-white p-2 rounded-full
+                 flex  sm:group-hover:opacity-100 transition"
+    >
+      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+    </button>
+  </div>
+</div>
 
-        {/* Text Section */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-center text-center lg:text-left space-y-4 ">
-          <h1 className="hidden lg:block text-white text-4xl font-bold">
-            Think
-          </h1>
-          <h1 className="hidden lg:block text-white text-5xl font-bold">
-            Type
-          </h1>
-          <h1 className="hidden lg:block text-white text-6xl font-bold">
-            Create
-          </h1>
-        </div>
-      </div>
     </div>
   );
 };

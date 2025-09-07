@@ -1,5 +1,5 @@
-import React from 'react';
-import { PricingTable } from '@clerk/clerk-react';
+import React from "react";
+import { PricingTable } from "@clerk/clerk-react";
 
 const Plan = () => {
   return (
@@ -9,26 +9,28 @@ const Plan = () => {
           Choose Your Plan
         </h2>
         <p className="mt-4 text-base sm:text-lg">
-          Start for free and scale as you grow. Find the perfect plan for your content creation needs.
+          Start for free and scale as you grow. Find the perfect plan for your
+          content creation needs.
         </p>
       </div>
 
       <div className="max-w-5xl mx-auto sm:px-3">
-        <div className="rounded-xl transition-all duration-500 ease-in-out hover:shadow-3xl hover:scale-[1.02]">
-          <div className="rounded-2xl sm:p-4">
+        <div className="rounded-xl transition-all duration-500 ease-in-out hover:shadow-3xl hover:scale-[1.02] ">
+          <div className="rounded-3xl sm:p-4">
             <PricingTable
               appearance={{
-                baseTheme: 'dark',
+                baseTheme: "dark",
                 variables: {
-                  colorPrimary: '#234DC2',      // purple primary                  
-                  fontFamily: 'Inter, sans-serif',
-                  borderRadius: '1rem',
-                  colorBackground: '#f1f5f9',    // slate-300 background
-                  colorBackgroundSecondary: '#f8fafc', // optional for cards
+                  colorPrimary: "#234DC2", // purple primary
+                  fontFamily: "Inter, sans-serif",
+                  borderRadius: "1rem",
+                  colorBackground: "#white", // slate-300 background
+                  colorBackgroundSecondary: "white",
+                  colorText: "#495A68B", // optional for cards
                 },
                 layout: {
                   spacingUnit: 12,
-                  borderRadius: '1rem',
+                  borderRadius: "1rem",
                 },
               }}
             />
