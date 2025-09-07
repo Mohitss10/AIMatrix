@@ -23,7 +23,7 @@ const Plan = () => {
                   colorPrimary: '#234DC2',      // purple primary                  
                   fontFamily: 'Inter, sans-serif',
                   borderRadius: '1rem',
-                  colorBackground: '#e2e8f0',    // slate-300 background
+                  colorBackground: '#f1f5f9',    // slate-300 background
                   colorBackgroundSecondary: '#f8fafc', // optional for cards
                 },
                 layout: {

@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Gem, Sparkles, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
-import { useAuth } from '@clerk/clerk-react';
-import CreationItem from '../components/CreationItem';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState, useRef } from "react";
+import { Gem, VolumeX, Volume2, Play, Pause } from "lucide-react";
+import { useAuth } from "@clerk/clerk-react";
+import axios from "axios";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import Community from './Community';
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
@@ -14,30 +11,23 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const [creations, setCreations] = useState([]);
-  const [plan, setPlan] = useState('Free');
+  const [plan, setPlan] = useState("Free");
   const [loading, setLoading] = useState(true);
-  const [showRecent, setShowRecent] = useState(false); // default closed
-
-
-  const tools = [
-    { name: "Write Article", path: "/ai/write-article" },
-    { name: "Blog Titles", path: "/ai/blog-titles" },
-    { name: "Generate Images", path: "/ai/generate-images" },
-    { name: "Remove Background", path: "/ai/remove-background" },
-    { name: "Remove Object", path: "/ai/remove-object" },
-    { name: "Review Resume", path: "/ai/review-resume" },
-  ];
 
   const { getToken } = useAuth();
+  const videoRef = useRef(null);
+
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
   const getDashboardData = async () => {
     try {
-      const { data } = await axios.get('/api/user/get-user-creations', {
-        headers: { Authorization: `Bearer ${await getToken()}` }
+      const { data } = await axios.get("/api/user/get-user-creations", {
+        headers: { Authorization: `Bearer ${await getToken()}` },
       });
       if (data.success) {
         setCreations(data.creations);
-        setPlan(data.plan || 'Free');
+        setPlan(data.plan || "Free");
       } else {
         toast.error(data.message);
       }
@@ -51,70 +41,95 @@ const Dashboard = () => {
     getDashboardData();
   }, []);
 
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const toggleMute = () => {
+    if (!videoRef.current) return;
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
   return (
-    <div className=" min-h-[70vh] sm:h-[82.5vh] border-white/10 lg:min-h-[86vh] sm:mx-auto overflow-y-auto scrollbar-hide border p-4 rounded-xl">
-      {/* Card Section */}
-      {/* <div className="flex gap-4 overflow-x-auto sm:flex-wrap scrollbar-hide justify-center">
-        {/* Total creation card */}
-        {/* <div className="flex-shrink-0 flex justify-between items-center w-38 sm:w-55 lg:w-[48%] p-4 sm:p-6 rounded-xl border border-white/10 backdrop-blur-lg shadow-md bg-slate-800/30">
-          <div className="text-slate-100">
-            <p className="text-sm opacity-80">Total Creation</p>
-            <h2 className="text-xl font-semibold">{creations.length}</h2>
-          </div>
-          <div className="w-10 h-10 rounded-lg flex justify-center items-center shadow-md">
-            <Sparkles className="w-5 text-white" />
-          </div>
-        </div> */}
+    <div className="min-h-[70vh] sm:h-[82.5vh] lg:min-h-[86vh] sm:mx-auto overflow-y-auto scrollbar-hide rounded-xl">
+      {/* Active Plan card */}
+      <div className="flex-shrink-0 flex justify-between items-center w-full p-2 sm:p-4 rounded-xl border border-white/10 backdrop-blur-lg shadow-md bg-slate-800/10">
+        <div>
+          <p className="text-sm opacity-80">Active Plan</p>
+          <h2 className="text-xl font-semibold">
+            {plan === "premium" ? "Premium" : "Free"}
+          </h2>
+        </div>
+        <div className="w-10 h-10 rounded-lg flex justify-center items-center shadow-md">
+          <Gem className="w-5" />
+        </div>
+      </div>
 
-        {/* Active plan card */}
-        <div className=" flex-shrink-0 flex justify-between items-center w-full lg:w-full p-2 sm:p-4 rounded-xl border border-white/10 backdrop-blur-lg shadow-md bg-slate-800/10">
+      {/* 🔥 Responsive Video Ad Section */}
+      {/* 🔥 Responsive Video Ad Section */}
+      <div className="mt-5 rounded-xl overflow-hidden shadow-lg border border-white/40 flex flex-col lg:flex-row justify-center items-center lg:gap-6 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-600">
+        {/* Video Section */}
+        <div className="relative w-full lg:w-1/2 group">
+          <video
+            ref={videoRef}
+            className="w-full h-auto max-h-[60vh] object-cover rounded-xl"
+            src="/ad1.mp4" // <-- put your ad.mp4 in public/ folder
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
 
-          <div >
-            <p className="text-sm opacity-80">Active Plan</p>
-            <h2 className="text-xl font-semibold">
-              {plan === 'premium' ? 'Premium' : 'Free'}
-            </h2>
+          {/* Controls (Visible on hover) */}
+          {/* Play/Pause Button (bottom center) */}
+          <div className="absolute inset-0 flex items-end justify-center pb-3 opacity-0 group-hover:opacity-100 transition">
+            <button
+              onClick={togglePlay}
+              className="bg-black/50 text-white p-3 rounded-full"
+            >
+              {isPlaying ? (
+                <Pause className="w-6 h-6" />
+              ) : (
+                <Play className="w-6 h-6" />
+              )}
+            </button>
           </div>
-          <div className="w-10 h-10 rounded-lg flex justify-center items-center shadow-md">
-            <Gem className="w-5" />
+
+          {/* Mute Button (bottom right) */}
+          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition">
+            <button
+              onClick={toggleMute}
+              className="bg-black/50 text-white p-1 rounded-full"
+            >
+              {isMuted ? (
+                <VolumeX className="w-4 h-4" />
+              ) : (
+                <Volume2 className="w-4 h-4" />
+              )}
+            </button>
           </div>
         </div>
-            <h1 className="text-sm pl-3  mt-3">From your words to a work of art⚡</h1>
 
-      
-<div className="h-[43vh] sm:h-[58vh] mt-5 scrollable-container overflow-y-auto">
-  <Community />
-</div>
-
-      
-
-      {/* Mobile Only */}
-<motion.button
-  onClick={() => {
-    const container = document.querySelector('.scrollable-container');
-    if (container) {
-      container.scrollBy({ top: window.innerHeight * 0.5, behavior: 'smooth' });
-    }
-  }}
-  className="mt-6 px-6 py-3 rounded-xl w-full  bg-slate-800/30 font-medium shadow-lg hover:shadow-xl transition sm:hidden flex flex-col items-center"
-  animate={{
-    y: [0, -8, 0, 8, 0],
-  }}
-  transition={{
-    duration: 2,
-    repeat: Infinity,
-    ease: "easeInOut",
-  }}
->
-  Scroll to view more
-  <ChevronDown className="h-6 w-6 text-shadow-white" />
-</motion.button>
-
-
-
-
-
-
+        {/* Text Section */}
+        <div className="w-full lg:w-1/2 flex flex-col justify-center text-center lg:text-left space-y-4 ">
+          <h1 className="hidden lg:block text-white text-4xl font-bold">
+            Think
+          </h1>
+          <h1 className="hidden lg:block text-white text-5xl font-bold">
+            Type
+          </h1>
+          <h1 className="hidden lg:block text-white text-6xl font-bold">
+            Create
+          </h1>
+        </div>
+      </div>
     </div>
   );
 };
