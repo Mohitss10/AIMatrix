@@ -21,10 +21,8 @@ const WriteArticle = () => {
   const [content, setContent] = useState("");
   const [showConfig, setShowConfig] = useState(true);
 
-  // ✅ Button state
-  const [buttonState, setButtonState] = useState("save");
-  // "save" → Save PDF
-  // "download" → Click to Download Again (stays until refresh)
+  // ✅ Control Save PDF button visibility
+  const [showButton, setShowButton] = useState(true);
 
   const { getToken } = useAuth();
   const articleRef = useRef(null);
@@ -46,8 +44,8 @@ const WriteArticle = () => {
       if (data.success) {
         setContent(data.content);
 
-        // reset to Save PDF for each new article
-        setButtonState("save");
+        // reset button visible for new article
+        setShowButton(true);
 
         if (typeof window !== "undefined" && window.innerWidth < 1024) {
           setShowConfig(false);
@@ -80,10 +78,8 @@ const WriteArticle = () => {
       icon: "✅",
     });
 
-    // ✅ After first save, lock button to "download" permanently
-    if (buttonState === "save") {
-      setButtonState("download");
-    }
+    // ✅ Hide button after save
+    setShowButton(false);
   };
 
   return (
@@ -171,19 +167,15 @@ const WriteArticle = () => {
               <h1 className="text-xl font-semibold">Generated article</h1>
             </div>
 
-            {/* Save / Download Again Button */}
-            {content && (
+            {/* Save Button */}
+            {content && showButton && (
               <button
                 onClick={handleSavePDF}
-                className={`mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-all
-                  ${
-                    buttonState === "save"
-                      ? "bg-[#226BFF] hover:bg-[#1557d1] text-white"
-                      : "bg-[#226BFF] hover:bg-[#1557d1] text-white"
-                  }`}
+                className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-all
+                  bg-[#226BFF] hover:bg-[#1557d1] text-white"
               >
                 <Download className="w-4 h-4" />
-                {buttonState === "save" ? "Save PDF" : "Click to Download Again"}
+                Save PDF
               </button>
             )}
           </div>
