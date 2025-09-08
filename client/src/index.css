@@ -104,11 +104,11 @@ body.light {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #1F2634;
+  /* background-color: #1F2634; */
   border-radius: 4px;
 }
 
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #1F2634 transparent;
+  scrollbar-color: #aab3c3 transparent;
 }

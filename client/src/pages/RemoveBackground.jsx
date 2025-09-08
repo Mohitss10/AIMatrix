@@ -10,21 +10,13 @@ const RemoveBackground = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [processedImage, setProcessedImage] = useState("");
-  const [showLeftCol, setShowLeftCol] = useState(true); // ✅ default open
+  const [showLeftCol, setShowLeftCol] = useState(true);
+  const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const { getToken } = useAuth();
 
-  // ✅ Auto-close left col after image is processed (mobile/tablet only)
-  useEffect(() => {
-    if (
-      processedImage &&
-      typeof window !== "undefined" &&
-      window.innerWidth < 1024
-    ) {
-      setShowLeftCol(false);
-    }
-  }, [processedImage]);
-
+  // ✅ Form submit
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     if (!file) return toast.error("Please upload an image");
@@ -47,7 +39,8 @@ const RemoveBackground = () => {
       );
 
       if (data.success) {
-        setProcessedImage(data.content); // ✅ triggers useEffect to close on mobile
+        setProcessedImage(data.content);
+        setHasDownloaded(false); // ✅ reset when new image is processed
       } else {
         toast.error(data.message);
       }
@@ -56,6 +49,56 @@ const RemoveBackground = () => {
     }
 
     setLoading(false);
+  };
+
+  // ✅ Helper function for downloading
+  const handleDownload = async () => {
+    try {
+      let blobUrl;
+
+      if (processedImage.startsWith("data:image")) {
+        // ✅ Base64 image
+        const byteString = atob(processedImage.split(",")[1]);
+        const mimeString = processedImage.split(",")[0].split(":")[1].split(";")[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        blobUrl = window.URL.createObjectURL(blob);
+      } else {
+        // ✅ Normal image URL
+        const response = await fetch(processedImage);
+        if (!response.ok) throw new Error("Image fetch failed");
+        const blob = await response.blob();
+        blobUrl = window.URL.createObjectURL(blob);
+      }
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = "background-removed.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
+      toast.success("Image saved!", {
+        duration: 2500,
+        className: "bg-transparent text-white shadow-none border-none",
+        icon: "✅",
+      });
+
+      setHasDownloaded(true);
+      setShowConfirm(false);
+    } catch (err) {
+      toast.error("Save failed!", {
+        duration: 2500,
+        className: "bg-transparent text-white shadow-none border-none",
+        icon: "⚠️",
+      });
+      console.error("Save error:", err);
+    }
   };
 
   return (
@@ -138,75 +181,44 @@ const RemoveBackground = () => {
               <h1 className="text-xl font-semibold">Processed Image</h1>
             </div>
 
-            {/* Save Image button under heading */}
+            {/* Save Image button */}
             {processedImage && (
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    let blobUrl;
-
-                    if (processedImage.startsWith("data:image")) {
-                      // ✅ Base64 image
-                      const byteString = atob(processedImage.split(",")[1]);
-                      const mimeString = processedImage
-                        .split(",")[0]
-                        .split(":")[1]
-                        .split(";")[0];
-                      const ab = new ArrayBuffer(byteString.length);
-                      const ia = new Uint8Array(ab);
-                      for (let i = 0; i < byteString.length; i++) {
-                        ia[i] = byteString.charCodeAt(i);
+              <div className="mt-2">
+                {!showConfirm ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!hasDownloaded) {
+                        handleDownload(); // first download
+                      } else {
+                        setShowConfirm(true); // ask confirm
                       }
-                      const blob = new Blob([ab], { type: mimeString });
-                      blobUrl = window.URL.createObjectURL(blob);
-                    } else {
-                      // ✅ Normal image URL (remote or local)
-                      const response = await fetch(processedImage);
-                      if (!response.ok) throw new Error("Image fetch failed");
-                      const blob = await response.blob();
-                      blobUrl = window.URL.createObjectURL(blob);
-                    }
-
-                    const link = document.createElement("a");
-                    link.href = blobUrl;
-                    link.download = "background-removed.png";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(blobUrl);
-
-                    toast.success("Image saved!", {
-                      duration: 2500,
-                      className:
-                        "bg-transparent text-white shadow-none border-none",
-                      icon: "✅",
-                    });
-                  } catch (err) {
-                    toast.error("Save failed!", {
-                      duration: 2500,
-                      className:
-                        "bg-transparent text-white shadow-none border-none",
-                      icon: "⚠️",
-                    });
-                    console.error("Save error:", err);
-                  }
-                }}
-                className="flex sm:flex-row justify-center items-center gap-1 sm:gap-2 px-3 py-1.5 mt-2 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-              >
-                <Download className="w-4 h-4" />
-                <span>Save Image</span>
-              </button>
+                    }}
+                    className="flex justify-center w-full items-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Save Image</span>
+                  </button>
+                ) : (
+                  <div >
+                    <button
+                      onClick={handleDownload}
+                      className="px-3 py-1.5 text-sm w-full bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+                    >
+                      Click to download again ?
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
+          {/* Preview */}
           {!processedImage ? (
             <div className="flex-1 flex justify-center items-center">
               <div className="text-sm flex flex-col items-center gap-5 ">
                 <Eraser className="w-9 h-9" />
-                <p>
-                  Upload an image and click "Remove Background" to get started
-                </p>
+                <p>Upload an image and click "Remove Background" to get started</p>
               </div>
             </div>
           ) : (
@@ -220,7 +232,7 @@ const RemoveBackground = () => {
           )}
         </div>
       </div>
-      <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
+            <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
         <h2 className="text-lg font-bold mb-3">
           Remove Background from Images Instantly
         </h2>

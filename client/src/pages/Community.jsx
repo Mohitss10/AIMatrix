@@ -72,42 +72,41 @@ const Community = () => {
 
 return (
   <div
-    className={`flex-1 bg-slate-700/10 h-full flex flex-col p-2 border border-white/10 rounded-2xl 
+    className={`flex-1 bg-slate-700/10 h-[83vh] flex flex-col p-2 border border-white/10 rounded-2xl 
     ${!isSidebarVisible ? 'w-full' : ''}`}
   >
-    <h1 className="text-2xl pl-3 font-medium mt-2">Recent Creations</h1>
+   
 
-    <div className="flex-1 rounded-2xl p-3 overflow-y-auto pr-2 scrollbar-hide">
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {creations.map((creation, index) => (
-          <div
-            key={index}
-            className="relative group w-full h-full rounded-lg overflow-hidden"
-          >
-            <img
-              src={creation.content}
-              alt=""
-              className="w-full h-full object-cover rounded-lg"
+<div className="flex-1 rounded-2xl p-3 overflow-y-auto pr-2 scrollbar-hide">
+  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"> {/* ✅ Changed 3 → 4 */}
+    {creations.map((creation, index) => (
+      <div
+        key={index}
+        className="relative group w-full h-full rounded-lg overflow-hidden"
+      >
+        <img
+          src={creation.content}
+          alt=""
+          className="w-full h-full object-cover rounded-lg"
+        />
+
+        <div className="absolute inset-0 flex gap-2 items-end justify-end p-3 rounded-lg transition group-hover:bg-gradient-to-b group-hover:from-transparent group-hover:to-black/80">
+          <p className="text-sm hidden group-hover:block">{creation.prompt}</p>
+          <div className="flex gap-1 items-center">
+            <p>{creation.likes.length}</p>
+            <Heart
+              onClick={() => imageLikeToggle(creation.id)}
+              className={`min-w-5 h-5 hover:scale-110 cursor-pointer transition ${
+                creation.likes.includes(user.id) ? 'fill-red-500 text-red-600' : ''
+              }`}
             />
-
-            <div className="absolute inset-0 flex gap-2 items-end justify-end p-3 rounded-lg transition group-hover:bg-gradient-to-b group-hover:from-transparent group-hover:to-black/80">
-              <p className="text-sm hidden group-hover:block">{creation.prompt}</p>
-              <div className="flex gap-1 items-center">
-                <p>{creation.likes.length}</p>
-                <Heart
-                  onClick={() => imageLikeToggle(creation.id)}
-                  className={`min-w-5 h-5 hover:scale-110 cursor-pointer transition ${
-                    creation.likes.includes(user.id)
-                      ? 'fill-red-500 text-red-600'
-                      : ''
-                  }`}
-                />
-              </div>
-            </div>
           </div>
-        ))}
+        </div>
       </div>
-    </div>
+    ))}
+  </div>
+</div>
+
   </div>
 );
 };

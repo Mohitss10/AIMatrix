@@ -20,9 +20,14 @@ const WriteArticle = () => {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState("");
   const [showConfig, setShowConfig] = useState(true);
-  const { getToken } = useAuth();
 
-  const articleRef = useRef(null); // 🔹 For PDF export
+  // ✅ Button state
+  const [buttonState, setButtonState] = useState("save");
+  // "save" → Save PDF
+  // "download" → Click to Download Again (stays until refresh)
+
+  const { getToken } = useAuth();
+  const articleRef = useRef(null);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -40,6 +45,10 @@ const WriteArticle = () => {
 
       if (data.success) {
         setContent(data.content);
+
+        // reset to Save PDF for each new article
+        setButtonState("save");
+
         if (typeof window !== "undefined" && window.innerWidth < 1024) {
           setShowConfig(false);
         }
@@ -52,7 +61,7 @@ const WriteArticle = () => {
     setLoading(false);
   };
 
-  // 📌 Save as PDF with HTML formatting
+  // 📌 Save as PDF
   const handleSavePDF = () => {
     if (!articleRef.current) return;
     const element = articleRef.current;
@@ -64,6 +73,17 @@ const WriteArticle = () => {
       jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
     };
     html2pdf().set(opt).from(element).save();
+
+    toast.success("PDF saved!", {
+      duration: 2200,
+      className: "bg-transparent text-white shadow-none border-none",
+      icon: "✅",
+    });
+
+    // ✅ After first save, lock button to "download" permanently
+    if (buttonState === "save") {
+      setButtonState("download");
+    }
   };
 
   return (
@@ -111,17 +131,17 @@ const WriteArticle = () => {
               required
             />
 
-            <p className="m-4 text-sm font-medium ">Article Length</p>
+            <p className="m-4 text-sm font-medium">Article Length</p>
             <div className="mt-3 ml-2 flex gap-3 flex-wrap">
               {articalLength.map((item, index) => (
                 <span
                   onClick={() => setSelectedLength(item)}
                   className={`text-xs px-4 py-1 border rounded-full cursor-pointer transition-all duration-300 ease-in-out
-    ${
-      selectedLength.text === item.text
-        ? "border-blue-500 text-blue-400 shadow-md shadow-blue-500/30 scale-105"
-        : "border-gray-400/40 hover:shadow-md hover:shadow-gray-500/30 hover:scale-105"
-    }`}
+                  ${
+                    selectedLength.text === item.text
+                      ? "border-blue-500 text-blue-400 shadow-md shadow-blue-500/30 scale-105"
+                      : "border-gray-400/40 hover:shadow-md hover:shadow-gray-500/30 hover:scale-105"
+                  }`}
                   key={index}
                 >
                   {item.text}
@@ -144,81 +164,79 @@ const WriteArticle = () => {
         </form>
 
         {/* RIGHT COLUMN */}
-{/* RIGHT COLUMN */}
-<div className="flex-1 w-full h-[60vh] max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
-  <div className="flex items-center justify-between">
-    <div className="flex items-center gap-3">
-      <Edit className="w-5 h-5 text-[#4A7AFF]" />
-      <h1 className="text-xl font-semibold">Generated article</h1>
-    </div>
-  </div>
+        <div className="flex-1 w-full h-[60vh] max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
+          <div>
+            <div className="flex items-center gap-3">
+              <Edit className="w-5 h-5 text-[#4A7AFF]" />
+              <h1 className="text-xl font-semibold">Generated article</h1>
+            </div>
 
-  {content && (
-    <button
-      onClick={handleSavePDF}
-      className="flex  sm:flex-row justify-center items-center gap-1 sm:gap-2 px-3 py-1.5 mt-2 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-    >
-      <Download className="w-4 h-4" />
-      <span>Save PDF</span>
-    </button>
-  )}
+            {/* Save / Download Again Button */}
+            {content && (
+              <button
+                onClick={handleSavePDF}
+                className={`mt-3 w-full flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-all
+                  ${
+                    buttonState === "save"
+                      ? "bg-[#226BFF] hover:bg-[#1557d1] text-white"
+                      : "bg-[#226BFF] hover:bg-[#1557d1] text-white"
+                  }`}
+              >
+                <Download className="w-4 h-4" />
+                {buttonState === "save" ? "Save PDF" : "Click to Download Again"}
+              </button>
+            )}
+          </div>
 
-  {!content ? (
-    <div className="flex-1 flex justify-center items-center">
-      <div className="text-sm flex flex-col items-center gap-5">
-        <Edit className="w-9 h-9" />
-        <p>Enter a topic and click "Generate article" to get started</p>
+          {!content ? (
+            <div className="flex-1 flex justify-center items-center">
+              <div className="text-sm flex flex-col items-center gap-5">
+                <Edit className="w-9 h-9" />
+                <p>Enter a topic and click "Generate article" to get started</p>
+              </div>
+            </div>
+          ) : (
+            <div
+              ref={articleRef}
+              className="mt-3 overflow-y-auto text-sm markdown-body p-5 rounded-lg custom-scrollbar h-[60vh] sm:h-[70vh]"
+            >
+              <Markdown
+                components={{
+                  h1: ({ node, ...props }) => (
+                    <h1 className="text-2xl font-bold mt-4 mb-2" {...props} />
+                  ),
+                  h2: ({ node, ...props }) => (
+                    <h2 className="text-xl font-semibold mt-3 mb-2" {...props} />
+                  ),
+                  h3: ({ node, ...props }) => (
+                    <h3 className="text-lg font-semibold mt-2 mb-1" {...props} />
+                  ),
+                  p: ({ node, ...props }) => (
+                    <p className="text-sm leading-relaxed mb-2" {...props} />
+                  ),
+                  li: ({ node, ...props }) => (
+                    <li className="list-disc list-inside text-sm mb-1" {...props} />
+                  ),
+                }}
+              >
+                {content}
+              </Markdown>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  ) : (
-    <div
-      ref={articleRef}
-      className="mt-3 overflow-y-auto text-sm markdown-body p-5 rounded-lg custom-scrollbar h-[60vh] sm:h-[70vh]"
-    >
-      <Markdown
-        components={{
-          h1: ({ node, ...props }) => (
-            <h1 className="text-2xl font-bold mt-4 mb-2" {...props} />
-          ),
-          h2: ({ node, ...props }) => (
-            <h2 className="text-xl font-semibold mt-3 mb-2" {...props} />
-          ),
-          h3: ({ node, ...props }) => (
-            <h3 className="text-lg font-semibold mt-2 mb-1" {...props} />
-          ),
-          p: ({ node, ...props }) => (
-            <p className="text-sm leading-relaxed mb-2" {...props} />
-          ),
-          li: ({ node, ...props }) => (
-            <li className="list-disc list-inside text-sm mb-1" {...props} />
-          ),
-        }}
-      >
-        {content}
-      </Markdown>
-    </div>
-  )}
-</div>
 
-
-      </div>
+      {/* Info Section */}
       <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
-        {" "}
-        <h2 className="text-lg font-bold mb-3">
-          Write High-Quality Articles with AI
-        </h2>{" "}
+        <h2 className="text-lg font-bold mb-3">Write High-Quality Articles with AI</h2>
         <p className="text-sm mb-2">
-          {" "}
-          Our AI article writer helps you create engaging, well-structured, and
-          SEO-friendly content in just minutes — perfect for blogs, websites,
-          and social media.{" "}
-        </p>{" "}
-       
+          Our AI article writer helps you create engaging, well-structured, and SEO-friendly
+          content in just minutes — perfect for blogs, websites, and social media.
+        </p>
         <p className="text-sm">
-          {" "}
-          Save time, boost productivity, and focus on your ideas while AI
-          handles the heavy lifting of writing.{" "}
-        </p>{" "}
+          Save time, boost productivity, and focus on your ideas while AI handles the heavy lifting
+          of writing.
+        </p>
       </div>
     </div>
   );

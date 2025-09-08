@@ -1,59 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import { Scissors, Sparkles, ChevronDown, Download,ChevronUp } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useAuth } from '@clerk/clerk-react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Scissors, Sparkles, ChevronDown, ChevronUp, Download } from "lucide-react";
+import toast from "react-hot-toast";
+import { useAuth } from "@clerk/clerk-react";
+import axios from "axios";
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const RemoveObject = () => {
   const [file, setFile] = useState(null);
-  const [object, setObject] = useState('');
+  const [object, setObject] = useState("");
   const [loading, setLoading] = useState(false);
-  const [processedImage, setProcessedImage] = useState('');
+  const [processedImage, setProcessedImage] = useState("");
   const [showLeftCol, setShowLeftCol] = useState(true); // default open
+
+  // download control
+  const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const { getToken } = useAuth();
 
-  // ✅ Auto-close left col after processedImage is ready (only on mobile/tablet)
+  // ✅ Auto-close left col on mobile/tablet after result is ready
   useEffect(() => {
-    if (processedImage && typeof window !== 'undefined' && window.innerWidth < 1024) {
+    if (processedImage && typeof window !== "undefined" && window.innerWidth < 1024) {
       setShowLeftCol(false);
     }
   }, [processedImage]);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    if (!file) return toast.error('Please upload an image');
-    if (!object.trim()) return toast.error('Please describe the object to remove');
+    if (!file) return toast.error("Please upload an image");
+    if (!object.trim()) return toast.error("Please describe the object to remove");
 
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append('image', file);
-      formData.append('object', object);
+      formData.append("image", file);
+      formData.append("object", object);
 
-      const { data } = await axios.post(
-        '/api/ai/remove-image-object',
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${await getToken()}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+      const { data } = await axios.post("/api/ai/remove-image-object", formData, {
+        headers: {
+          Authorization: `Bearer ${await getToken()}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (data.success) {
-        setProcessedImage(data.content); // ⬅️ triggers useEffect
+        setProcessedImage(data.content);
+        // reset download state for new output
+        setHasDownloaded(false);
+        setShowConfirm(false);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setLoading(false);
+  // ✅ Robust downloader for data URLs + normal URLs
+  const handleDownload = async () => {
+    try {
+      let blobUrl;
+
+      if (processedImage.startsWith("data:image")) {
+        const base64 = processedImage.split(",")[1];
+        const mime = processedImage.split(",")[0].split(":")[1].split(";")[0];
+
+        const byteString = atob(base64);
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+        const blob = new Blob([ab], { type: mime });
+        blobUrl = window.URL.createObjectURL(blob);
+      } else {
+        const res = await fetch(processedImage);
+        if (!res.ok) throw new Error("Image fetch failed");
+        const blob = await res.blob();
+        blobUrl = window.URL.createObjectURL(blob);
+      }
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = "object-removed.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
+      toast.success("Image saved!", {
+        duration: 2200,
+        className: "bg-transparent text-white shadow-none border-none",
+        icon: "✅",
+      });
+
+      setHasDownloaded(true);
+      setShowConfirm(false);
+    } catch (err) {
+      console.error("Save error:", err);
+      toast.error("Save failed!", {
+        duration: 2500,
+        className: "bg-transparent text-white shadow-none border-none",
+        icon: "⚠️",
+      });
+    }
   };
 
   return (
@@ -62,52 +113,54 @@ const RemoveObject = () => {
 
         {/* Left Column */}
         <div
-          className={`flex-1 flex flex-col w-full max-w-full bg-slate-700/10 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden transition-all duration-500 ${showLeftCol ? 'max-h-[1000px] p-5 opacity-100' : 'max-h-16 p-5 opacity-90'
-            }`}
+          className={`flex-1 flex flex-col w-full max-w-full bg-slate-700/10 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden transition-all duration-500 ${
+            showLeftCol ? "max-h-[1000px] p-5 opacity-100" : "max-h-16 p-5 opacity-90"
+          }`}
         >
-          <div className="flex items-center justify-between cursor-pointer" onClick={() => setShowLeftCol(!showLeftCol)}>
+          <div
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => setShowLeftCol((s) => !s)}
+          >
             <div className="flex items-center gap-3">
               <Sparkles className="w-6 text-[#ff4aea]" />
               <h1 className="text-xl font-semibold">Object Removal</h1>
             </div>
             <div className="lg:hidden">
               {showLeftCol ? (
-                <ChevronUp className="w-5 h-5 " />
+                <ChevronUp className="w-5 h-5" />
               ) : (
-                <ChevronDown className="w-5 h-5 " />
+                <ChevronDown className="w-5 h-5" />
               )}
             </div>
           </div>
 
-
           {showLeftCol && (
             <form onSubmit={onSubmitHandler} className="flex flex-col">
-              <p className="mt-6 text-sm font-medium ">Upload Image</p>
+              <p className="mt-6 text-sm font-medium">Upload Image</p>
               <input
                 onChange={(e) => setFile(e.target.files[0])}
                 type="file"
                 accept="image/*"
-                className="w-full p-2 mt-2 outline-none text-sm rounded-md border border-slate-400 bg-transparent  placeholder:text-white/40"
+                className="w-full p-2 mt-2 outline-none text-sm rounded-md border border-slate-400 bg-transparent placeholder:text-white/40"
                 required
               />
 
-              <p className="mt-6 text-sm font-medium ">Describe Object Name to Remove</p>
+              <p className="mt-6 text-sm font-medium">Describe Object Name to Remove</p>
               <textarea
                 onChange={(e) => setObject(e.target.value)}
                 value={object}
                 rows={4}
-                className="w-full p-2 mt-2 outline-none text-sm rounded-md border border-slate-400 bg-transparent  placeholder:text-gray-400"
+                className="w-full p-2 mt-2 outline-none text-sm rounded-md border border-slate-400 bg-transparent placeholder:text-gray-400"
                 placeholder="e.g., watch or spoon (only a single object name)"
                 required
               />
 
-
               <button
                 disabled={loading}
-                className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#76488b] to-[#e898dd]  px-4 py-3 mt-8 text-sm rounded-lg cursor-pointer"
+                className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#76488b] to-[#e898dd] px-4 py-3 mt-8 text-sm rounded-lg cursor-pointer"
               >
                 {loading ? (
-                  <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
+                  <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin" />
                 ) : (
                   <Scissors className="w-5" />
                 )}
@@ -117,92 +170,79 @@ const RemoveObject = () => {
           )}
         </div>
 
-{/* Right Column */}
-<div className="flex-1 gap-2 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
-  <div className="flex flex-col gap-2">
-    <div className="flex items-center gap-3">
-      <Scissors className="w-5 h-5 text-[#ff4aea]" />
-      <h1 className="text-xl font-semibold">Processed Image</h1>
-    </div>
+        {/* Right Column */}
+        <div className="flex-1 gap-2 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
+          <div>
+            <div className="flex items-center gap-3">
+              <Scissors className="w-5 h-5 text-[#ff4aea]" />
+              <h1 className="text-xl font-semibold">Processed Image</h1>
+            </div>
 
-    {/* Save Image button under heading */}
-{processedImage && (
-  <button
-    type="button"
-    onClick={async () => {
-      try {
-        let blobUrl;
+            {/* Save Image Button (top-right) */}
+            {processedImage && (
+              <div className="mt-2">
+                {!showConfirm ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!hasDownloaded) {
+                        handleDownload(); // first download
+                      } else {
+                        setShowConfirm(true); // ask confirm
+                      }
+                    }}
+                    className="flex justify-center w-full items-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Save Image</span>
+                  </button>
+                ) : (
+                  <div >
+                    <button
+                      onClick={handleDownload}
+                      className="px-3 py-1.5 text-sm w-full bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+                    >
+                      Click to download again ?
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
-        if (processedImage.startsWith("data:image")) {
-          // ✅ Base64 image
-          const byteString = atob(processedImage.split(",")[1]);
-          const mimeString = processedImage.split(",")[0].split(":")[1].split(";")[0];
-          const ab = new ArrayBuffer(byteString.length);
-          const ia = new Uint8Array(ab);
-          for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-          }
-          const blob = new Blob([ab], { type: mimeString });
-          blobUrl = window.URL.createObjectURL(blob);
-        } else {
-          // ✅ Normal image URL
-          const response = await fetch(processedImage);
-          if (!response.ok) throw new Error("Image fetch failed");
-          const blob = await response.blob();
-          blobUrl = window.URL.createObjectURL(blob);
-        }
+          {/* Confirmation box UNDER the button */}
+          {/* {processedImage && showConfirm && (
+            <div>
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+              >
+                Yes
+              </button>
+            </div>
+          )} */}
 
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = "object-removed.png"; // ✅ Correct filename
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
-
-        toast.success("Image saved!", {
-          duration: 2500,
-          className: "bg-transparent text-white shadow-none border-none",
-          icon: "✅",
-        });
-      } catch (err) {
-        toast.error("Save failed!", {
-          duration: 2500,
-          className: "bg-transparent text-white shadow-none border-none",
-          icon: "⚠️",
-        });
-        console.error("Save error:", err);
-      }
-    }}
-    className="flex sm:flex-row justify-center items-center gap-1 sm:gap-2 px-3 py-1.5 mt-2 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-  >
-    <Download className="w-4 h-4" />
-    <span>Save Image</span> {/* ✅ fixed text */}
-  </button>
-)}
-
-  
-  </div>
-
-  {!processedImage ? (
-    <div className="flex-1 flex justify-center items-center">
-      <div className="text-sm flex flex-col items-center gap-5 ">
-        <Scissors className="w-9 h-9" />
-        <p>Upload an image and click "Remove Object" to get started</p>
+          {!processedImage ? (
+            <div className="flex-1 flex justify-center items-center">
+              <div className="text-sm flex flex-col items-center gap-5 ">
+                <Scissors className="w-9 h-9" />
+                <p>Upload an image and click "Remove Object" to get started</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3 flex-1 overflow-y-scroll scrollbar-hide flex flex-col gap-4">
+              <img
+                src={processedImage}
+                alt="Processed"
+                className="max-w-full rounded-lg border border-white/10"
+              />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  ) : (
-    <div className="mt-3 flex-1 overflow-y-scroll scrollbar-hide flex flex-col gap-4">
-      <img
-        src={processedImage}
-        alt="Processed"
-        className="max-w-full rounded-lg border border-white/10"
-      />
-    </div>
-  )}
-</div>
 
-      </div>
+      {/* Info Section */}
       <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
         <h2 className="text-lg font-bold mb-3">Remove Objects from Images Effortlessly</h2>
         <p className="text-sm mb-2">
@@ -215,9 +255,7 @@ const RemoveObject = () => {
           Perfect for fixing product shots, travel photos, or personal images — no advanced editing skills required.
         </p>
       </div>
-
     </div>
-
   );
 };
 

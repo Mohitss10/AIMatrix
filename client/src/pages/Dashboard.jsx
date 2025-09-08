@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [creations, setCreations] = useState([]);
   const [plan, setPlan] = useState("Free");
   const [loading, setLoading] = useState(true);
+  const [videoLoading, setVideoLoading] = useState(true); // ✅ Track video load
 
   const { getToken } = useAuth();
   const videoRef = useRef(null);
@@ -59,6 +60,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-[70vh] sm:h-[82.5vh] lg:min-h-[86vh] sm:mx-auto overflow-y-auto scrollbar-hide rounded-xl">
+
       {/* Active Plan card */}
       <div className="flex-shrink-0 flex justify-between items-center w-full p-2 sm:p-4 rounded-xl border border-white/10 backdrop-blur-lg shadow-md bg-slate-800/10">
         <div>
@@ -72,44 +74,47 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* 🔥 Responsive Video Ad Section */}
-      {/* 🔥 Responsive Video Ad Section */}
-     {/* 🔥 Fullscreen Video Ad Section */}
-<div className="mt-5 relative w-full h-[67vh] rounded-xl overflow-hidden shadow-lg border border-white/10">
-  <video
-    ref={videoRef}
-    className="w-full h-full object-cover"
-    src="/ad2.mp4"
-    autoPlay
-    loop
-    muted
-    playsInline
-  />
+      {/* Video Section */}
+      <div className="mt-5 relative w-full h-[67vh] rounded-xl overflow-hidden shadow-lg border border-white/10">
+        {/* Loader */}
+        {videoLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20">
+            <div className="w-12 h-12 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+          </div>
+        )}
 
-  {/* ✅ Play/Pause Button */}
-  {/* Mobile: always visible | Desktop: only on hover */}
-  <div className="absolute inset-0 flex items-end justify-center pb-6">
-    <button
-      onClick={togglePlay}
-      className="bg-black/50 text-white p-3 rounded-full
-                 flex  sm:group-hover:opacity-100 transition"
-    >
-      {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-    </button>
-  </div>
+        <video
+          ref={videoRef}
+          className="w-full h-full object-cover"
+          src="/ad2.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          onLoadedData={() => setVideoLoading(false)} // ✅ Video ready
+          onWaiting={() => setVideoLoading(true)} // ✅ Network buffering
+        />
 
-  {/* ✅ Mute Button */}
-  <div className="absolute bottom-2 right-2">
-    <button
-      onClick={toggleMute}
-      className="bg-black/50 text-white p-2 rounded-full
-                 flex  sm:group-hover:opacity-100 transition"
-    >
-      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-    </button>
-  </div>
-</div>
+        {/* Play/Pause Button */}
+        <div className="absolute inset-0 flex items-end justify-center pb-6">
+          <button
+            onClick={togglePlay}
+            className="bg-black/50 text-white p-3 rounded-full flex sm:group-hover:opacity-100 transition"
+          >
+            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+          </button>
+        </div>
 
+        {/* Mute Button */}
+        <div className="absolute bottom-2 right-2">
+          <button
+            onClick={toggleMute}
+            className="bg-black/50 text-white p-2 rounded-full flex sm:group-hover:opacity-100 transition"
+          >
+            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

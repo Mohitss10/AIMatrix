@@ -83,12 +83,16 @@ const ReviewResume = () => {
             className={`overflow-hidden transition-all duration-500 ease-in-out lg:max-h-none ${showConfig ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0 lg:opacity-100 lg:max-h-none'
               } lg:mt-6`}
           >
+            <div>
+
+              
+            </div>
             <p className="text-sm font-medium ">Upload Resume</p>
             <input
               onChange={(e) => setFile(e.target.files[0])}
               type="file"
               accept="application/pdf"
-              className="w-full p-2 mt-2 outline-none text-sm rounded-md border border-gray-400 bg-transparent  placeholder:text-gray-400"
+              className="w-full p-2 mt-2 gap-3 outline-none text-sm rounded-md border border-gray-400 bg-transparent  placeholder:text-gray-400"
               required
             />
 
@@ -111,7 +115,7 @@ const ReviewResume = () => {
         </form>
 
         {/* Right Column */}
-        <div className="flex-1 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
+        <div className="flex-1 w-full h-[60vh] max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
           <div className="flex items-center gap-3 mb-3">
             <FileText className="w-5 h-5 text-[#00DA83]" />
             <h1 className="text-xl  font-semibold">Analysis Result</h1>
@@ -125,7 +129,7 @@ const ReviewResume = () => {
               </div>
             </div>
           ) : (
-            <div className="flex-1 scrollbar-hide overflow-y-auto max-h-[65vh] pr-2 text-sm  whitespace-pre-wrap">
+            <div className="mt-3 overflow-y-auto text-sm markdown-body p-5 rounded-lg custom-scrollbar h-[60vh] sm:h-[70vh]">
               <Markdown>{analysis}</Markdown>
             </div>
           )}
