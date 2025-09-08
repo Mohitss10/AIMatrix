@@ -179,49 +179,20 @@ const RemoveObject = () => {
             </div>
 
             {/* Save Image Button (top-right) */}
-            {processedImage && (
+            {processedImage && !hasDownloaded && (
               <div className="mt-2">
-                {!showConfirm ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!hasDownloaded) {
-                        handleDownload(); // first download
-                      } else {
-                        setShowConfirm(true); // ask confirm
-                      }
-                    }}
-                    className="flex justify-center w-full items-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Save Image</span>
-                  </button>
-                ) : (
-                  <div >
-                    <button
-                      onClick={handleDownload}
-                      className="px-3 py-1.5 text-sm w-full bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-                    >
-                      Click to Download Again ?
-                    </button>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="flex justify-center w-full items-center gap-2 px-3 py-1.5 text-sm 
+                 bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Save Image</span>
+                </button>
               </div>
             )}
           </div>
-
-          {/* Confirmation box UNDER the button */}
-          {/* {processedImage && showConfirm && (
-            <div>
-              <button
-                type="button"
-                onClick={handleDownload}
-                className="px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-              >
-                Yes
-              </button>
-            </div>
-          )} */}
 
           {!processedImage ? (
             <div className="flex-1 flex justify-center items-center">

@@ -59,7 +59,10 @@ const RemoveBackground = () => {
       if (processedImage.startsWith("data:image")) {
         // ✅ Base64 image
         const byteString = atob(processedImage.split(",")[1]);
-        const mimeString = processedImage.split(",")[0].split(":")[1].split(";")[0];
+        const mimeString = processedImage
+          .split(",")[0]
+          .split(":")[1]
+          .split(";")[0];
         const ab = new ArrayBuffer(byteString.length);
         const ia = new Uint8Array(ab);
         for (let i = 0; i < byteString.length; i++) {
@@ -182,33 +185,17 @@ const RemoveBackground = () => {
             </div>
 
             {/* Save Image button */}
-            {processedImage && (
+            {processedImage && !hasDownloaded && (
               <div className="mt-2">
-                {!showConfirm ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!hasDownloaded) {
-                        handleDownload(); // first download
-                      } else {
-                        setShowConfirm(true); // ask confirm
-                      }
-                    }}
-                    className="flex justify-center w-full items-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Save Image</span>
-                  </button>
-                ) : (
-                  <div >
-                    <button
-                      onClick={handleDownload}
-                      className="px-3 py-1.5 text-sm w-full bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-                    >
-                      Click to Download Again ?
-                    </button>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="flex justify-center w-full items-center gap-2 px-3 py-1.5 text-sm 
+                 bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Save Image</span>
+                </button>
               </div>
             )}
           </div>
@@ -218,7 +205,9 @@ const RemoveBackground = () => {
             <div className="flex-1 flex justify-center items-center">
               <div className="text-sm flex flex-col items-center gap-5 ">
                 <Eraser className="w-9 h-9" />
-                <p>Upload an image and click "Remove Background" to get started</p>
+                <p>
+                  Upload an image and click "Remove Background" to get started
+                </p>
               </div>
             </div>
           ) : (
@@ -232,7 +221,7 @@ const RemoveBackground = () => {
           )}
         </div>
       </div>
-            <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
+      <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
         <h2 className="text-lg font-bold mb-3">
           Remove Background from Images Instantly
         </h2>

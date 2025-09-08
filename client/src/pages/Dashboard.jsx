@@ -13,13 +13,15 @@ const Dashboard = () => {
   const [creations, setCreations] = useState([]);
   const [plan, setPlan] = useState("Free");
   const [loading, setLoading] = useState(true);
-  const [videoLoading, setVideoLoading] = useState(true); // ✅ Track video load
+  const [videoLoading, setVideoLoading] = useState(true);
 
   const { getToken } = useAuth();
   const videoRef = useRef(null);
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   const getDashboardData = async () => {
     try {
@@ -58,9 +60,38 @@ const Dashboard = () => {
     setIsMuted(!isMuted);
   };
 
+  // ✅ Track time updates
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) {
+      setDuration(videoRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e) => {
+    const newTime = e.target.value;
+    if (videoRef.current) {
+      videoRef.current.currentTime = newTime;
+    }
+    setCurrentTime(newTime);
+  };
+
+  const formatTime = (time) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60)
+      .toString()
+      .padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  };
+
   return (
     <div className="min-h-[70vh] sm:h-[82.5vh] lg:min-h-[86vh] sm:mx-auto overflow-y-auto scrollbar-hide rounded-xl">
-
       {/* Active Plan card */}
       <div className="flex-shrink-0 flex justify-between items-center w-full p-2 sm:p-4 rounded-xl border border-white/10 backdrop-blur-lg shadow-md bg-slate-800/10">
         <div>
@@ -91,27 +122,60 @@ const Dashboard = () => {
           loop
           muted
           playsInline
-          onLoadedData={() => setVideoLoading(false)} // ✅ Video ready
-          onWaiting={() => setVideoLoading(true)} // ✅ Network buffering
+          onLoadedData={() => setVideoLoading(false)}
+          onLoadedMetadata={handleLoadedMetadata}
+          onTimeUpdate={handleTimeUpdate}
+          onWaiting={() => setVideoLoading(true)} // show loader only while buffering
+          onPlaying={() => setVideoLoading(false)} // ✅ hide loader when playback resumes
         />
 
-        {/* Play/Pause Button */}
-        <div className="absolute inset-0 flex items-end justify-center pb-6">
+        {/* Controls */}
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-6">
+          {/* Play/Pause */}
           <button
             onClick={togglePlay}
-            className="bg-black/50 text-white p-3 rounded-full flex sm:group-hover:opacity-100 transition"
+            className="bg-black/50 text-white p-3 rounded-full mb-2"
           >
-            {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+            {isPlaying ? (
+              <Pause className="w-5 h-5" />
+            ) : (
+              <Play className="w-5 h-5" />
+            )}
           </button>
+
+          {/* Progress Bar + Time */}
+          <div className="flex flex-col items-center w-11/12">
+            <input
+              type="range"
+              min="0"
+              max={duration}
+              value={currentTime}
+              step="0.1"
+              onChange={handleSeek}
+              className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white
+               [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 
+               [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white
+               [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full 
+               [&::-moz-range-thumb]:bg-white"
+            />
+            <div className="flex justify-between text-xs text-white w-full mt-1">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
+          </div>
         </div>
 
         {/* Mute Button */}
-        <div className="absolute bottom-2 right-2">
+        <div className="absolute top-2 right-2">
           <button
             onClick={toggleMute}
-            className="bg-black/50 text-white p-2 rounded-full flex sm:group-hover:opacity-100 transition"
+            className="bg-black/50 text-white p-2 rounded-full"
           >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            {isMuted ? (
+              <VolumeX className="w-4 h-4" />
+            ) : (
+              <Volume2 className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>

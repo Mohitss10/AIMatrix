@@ -19,12 +19,15 @@ const GenerateImages = () => {
 
   const [selectedStyle, setSelectedStyle] = useState("Realistic");
   const [input, setInput] = useState("");
+  const [showButton, setShowButton] = useState(false);
+  const [hideAnim, setHideAnim] = useState(false);
+
   const [publish, setPublish] = useState(false);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState("");
   const [showLeftCol, setShowLeftCol] = useState(true);
-  const [hasDownloaded, setHasDownloaded] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+
+  // ✅ Controls Save Image button visibility
 
   const { getToken } = useAuth();
 
@@ -51,7 +54,7 @@ const GenerateImages = () => {
 
       if (data.success) {
         setContent(data.content);
-        setHasDownloaded(false); // reset when new image is generated
+        setShowButton(true); // show save button for new image
       } else {
         toast.error(data.message);
       }
@@ -84,8 +87,14 @@ const GenerateImages = () => {
         icon: "✅",
       });
 
-      setHasDownloaded(true);
-      setShowConfirm(false);
+      // 🔥 Trigger fade-out first
+      setHideAnim(true);
+
+      // 🔥 After animation ends, actually remove button
+      setTimeout(() => {
+        setShowButton(false);
+        setHideAnim(false);
+      }, 500); // matches transition duration
     } catch (err) {
       toast.error("Save failed!", {
         duration: 2500,
@@ -200,42 +209,28 @@ const GenerateImages = () => {
             </div>
           </div>
 
-          {/* ✅ Save Image button with confirm logic */}
-          {content && (
-            <div className="mt-2">
-              {!showConfirm ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!hasDownloaded) {
-                      handleDownload();
-                    } else {
-                      setShowConfirm(true);
-                    }
-                  }}
-                  className="flex w-full items-center justify-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-                >
-                  <Download className="w-4 h-4" />
-                  Save Image
-                </button>
-              ) : (
-                <div>
-                  <button
-                    onClick={handleDownload}
-                    className="px-3 w-full py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-                  >
-                    Click to Download again ?
-                  </button>
-                </div>
-              )}
-            </div>
+          {/* ✅ Save Image button */}
+          {/* ✅ Save Image button */}
+          {content && showButton && (
+            <button
+              type="button"
+              onClick={handleDownload}
+              className={`mt-2 flex w-full items-center justify-center gap-2 px-3 py-1.5 text-sm 
+      bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all duration-500 
+      ${hideAnim ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
+            >
+              <Download className="w-4 h-4" />
+              Save Image
+            </button>
           )}
 
           {!content ? (
             <div className="flex-1 flex justify-center items-center">
               <div className="text-sm flex flex-col items-center gap-5 ">
                 <Image className="w-9 h-9" />
-                <p>Enter a description and click "Generate Image" to get started</p>
+                <p>
+                  Enter a description and click "Generate Image" to get started
+                </p>
               </div>
             </div>
           ) : (
