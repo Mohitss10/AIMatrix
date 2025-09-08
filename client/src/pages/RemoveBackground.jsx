@@ -205,7 +205,7 @@ const RemoveBackground = () => {
                       onClick={handleDownload}
                       className="px-3 py-1.5 text-sm w-full bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
                     >
-                      Click to download again ?
+                      Click to Download Again ?
                     </button>
                   </div>
                 )}

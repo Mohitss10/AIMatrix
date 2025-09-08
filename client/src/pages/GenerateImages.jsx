@@ -224,7 +224,7 @@ const GenerateImages = () => {
                     onClick={handleDownload}
                     className="px-3 w-full py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
                   >
-                    Douwnload again ?
+                    Click to Download again ?
                   </button>
                 </div>
               )}
