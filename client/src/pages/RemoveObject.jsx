@@ -126,45 +126,62 @@ const RemoveObject = () => {
     </div>
 
     {/* Save Image button under heading */}
-    {processedImage && (
-      <button
-        type="button"
-        onClick={async () => {
-          try {
-            const response = await fetch(processedImage, { mode: 'cors' });
-            if (!response.ok) throw new Error('Image fetch failed');
+{processedImage && (
+  <button
+    type="button"
+    onClick={async () => {
+      try {
+        let blobUrl;
 
-            const blob = await response.blob();
-            const blobUrl = window.URL.createObjectURL(blob);
-
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = 'object-removed.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(blobUrl);
-
-            toast.success("Image saved!", {
-              duration: 3000,
-              style: { background: '#334155', color: '#ffffff', border: '1px solid #00AD25' },
-              icon: '✅'
-            });
-          } catch (err) {
-            toast.error("Save failed!", {
-              duration: 3000,
-              style: { background: '#334155', color: '#ffffff', border: '1px solid #ff4d4d' },
-              icon: '⚠️'
-            });
-            console.error("Save error:", err);
+        if (processedImage.startsWith("data:image")) {
+          // ✅ Base64 image
+          const byteString = atob(processedImage.split(",")[1]);
+          const mimeString = processedImage.split(",")[0].split(":")[1].split(";")[0];
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
           }
-        }}
-        className="flex  sm:flex-row justify-center items-center gap-1 sm:gap-2 px-3 py-1.5 mt-2 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-      >
-        <Download className="w-4 h-4" />
-      <span>Save PDF</span>
-      </button>
-    )}
+          const blob = new Blob([ab], { type: mimeString });
+          blobUrl = window.URL.createObjectURL(blob);
+        } else {
+          // ✅ Normal image URL
+          const response = await fetch(processedImage);
+          if (!response.ok) throw new Error("Image fetch failed");
+          const blob = await response.blob();
+          blobUrl = window.URL.createObjectURL(blob);
+        }
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = "object-removed.png"; // ✅ Correct filename
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+
+        toast.success("Image saved!", {
+          duration: 2500,
+          className: "bg-transparent text-white shadow-none border-none",
+          icon: "✅",
+        });
+      } catch (err) {
+        toast.error("Save failed!", {
+          duration: 2500,
+          className: "bg-transparent text-white shadow-none border-none",
+          icon: "⚠️",
+        });
+        console.error("Save error:", err);
+      }
+    }}
+    className="flex sm:flex-row justify-center items-center gap-1 sm:gap-2 px-3 py-1.5 mt-2 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+  >
+    <Download className="w-4 h-4" />
+    <span>Save Image</span> {/* ✅ fixed text */}
+  </button>
+)}
+
+  
   </div>
 
   {!processedImage ? (

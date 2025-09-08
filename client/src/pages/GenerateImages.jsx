@@ -152,45 +152,47 @@ const GenerateImages = () => {
     {/* ✅ Save Image Button (Top-right) */}
     
   </div>
-  {content && (
-      <button
-        type="button"
-        onClick={async () => {
-          try {
-            const response = await fetch(content, { mode: 'cors' });
-            if (!response.ok) throw new Error('Image fetch failed');
+{content && (
+  <button
+    type="button"
+    onClick={async () => {
+      try {
+        const response = await fetch(content);
+        if (!response.ok) throw new Error('Image fetch failed');
 
-            const blob = await response.blob();
-            const blobUrl = window.URL.createObjectURL(blob);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
 
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = 'generated-image.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(blobUrl);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = 'generated-image.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
 
-            toast.success("Image saved!", {
-              duration: 3000,
-              style: { border: '1px solid #00AD25' },
-              icon: '✅'
-            });
-          } catch (err) {
-            toast.error("Save failed!", {
-              duration: 3000,
-              style: { border: '1px solid #ff4d4d' },
-              icon: '⚠️'
-            });
-            console.error("Save error:", err);
-          }
-        }}
-        className="flex items-center justify-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-      >
-        <Download className="w-4 h-4" />
-        Save Image
-      </button>
-    )}
+        toast.success("Image saved!", {
+          duration: 2500,
+          className:
+            "bg-transparent text-white shadow-none border-none",
+          icon: '✅',
+        });
+      } catch (err) {
+        toast.error("Save failed!", {
+          duration: 2500,
+          className:
+            "bg-transparent text-white shadow-none border-none",
+          icon: '⚠️',
+        });
+        console.error("Save error:", err);
+      }
+    }}
+    className="flex items-center justify-center gap-2 px-3 py-1.5 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+  >
+    <Download className="w-4 h-4" />
+    Save Image
+  </button>
+)}
 
   {!content ? (
     <div className="flex-1 flex justify-center items-center">

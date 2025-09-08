@@ -1,43 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { Eraser, Sparkles, ChevronDown ,Download} from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useAuth } from '@clerk/clerk-react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Eraser, Sparkles, ChevronDown, Download } from "lucide-react";
+import toast from "react-hot-toast";
+import { useAuth } from "@clerk/clerk-react";
+import axios from "axios";
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const RemoveBackground = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [processedImage, setProcessedImage] = useState('');
+  const [processedImage, setProcessedImage] = useState("");
   const [showLeftCol, setShowLeftCol] = useState(true); // ✅ default open
 
   const { getToken } = useAuth();
 
   // ✅ Auto-close left col after image is processed (mobile/tablet only)
   useEffect(() => {
-    if (processedImage && typeof window !== 'undefined' && window.innerWidth < 1024) {
+    if (
+      processedImage &&
+      typeof window !== "undefined" &&
+      window.innerWidth < 1024
+    ) {
       setShowLeftCol(false);
     }
   }, [processedImage]);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    if (!file) return toast.error('Please upload an image');
+    if (!file) return toast.error("Please upload an image");
 
     try {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append("image", file);
 
       const { data } = await axios.post(
-        '/api/ai/remove-image-background',
+        "/api/ai/remove-image-background",
         formData,
         {
           headers: {
             Authorization: `Bearer ${await getToken()}`,
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -57,13 +61,14 @@ const RemoveBackground = () => {
   return (
     <div className="flex-1 overflow-y-auto scrollbar-hide">
       <div className="flex flex-col lg:flex-row gap-6">
-
         {/* Left Column */}
-        <div className={`flex-1 flex flex-col w-full max-w-full bg-slate-700/10 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden transition-all duration-500 ease-in-out`}>
+        <div
+          className={`flex-1 flex flex-col w-full max-w-full bg-slate-700/10 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden transition-all duration-500 ease-in-out`}
+        >
           <div
             className="flex items-center justify-between p-5 cursor-pointer"
             onClick={() => {
-              if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+              if (typeof window !== "undefined" && window.innerWidth < 1024) {
                 setShowLeftCol((s) => !s);
               }
             }}
@@ -79,7 +84,7 @@ const RemoveBackground = () => {
               style={{ transform: `rotate(${showLeftCol ? 180 : 0}deg)` }}
               onClick={(e) => {
                 e.stopPropagation();
-                if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                if (typeof window !== "undefined" && window.innerWidth < 1024) {
                   setShowLeftCol((s) => !s);
                 }
               }}
@@ -92,7 +97,7 @@ const RemoveBackground = () => {
           <div
             className={`px-5 transition-all duration-500 ease-in-out lg:pt-0 lg:pb-5`}
             style={{
-              maxHeight: showLeftCol ? '800px' : '0px',
+              maxHeight: showLeftCol ? "800px" : "0px",
               opacity: showLeftCol ? 1 : 0,
             }}
           >
@@ -125,88 +130,113 @@ const RemoveBackground = () => {
           </div>
         </div>
 
-{/* Right Column */}
-<div className="flex-1 gap-2 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
-  <div className="flex flex-col gap-2">
-    <div className="flex items-center gap-3">
-      <Eraser className="w-5 h-5 text-[#FF4938]" />
-      <h1 className="text-xl font-semibold">Processed Image</h1>
-    </div>
+        {/* Right Column */}
+        <div className="flex-1 gap-2 w-full max-w-full p-5 rounded-2xl flex flex-col bg-slate-700/10 backdrop-blur-sm border border-white/10">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <Eraser className="w-5 h-5 text-[#FF4938]" />
+              <h1 className="text-xl font-semibold">Processed Image</h1>
+            </div>
 
-    {/* Save Image button under heading */}
-    {processedImage && (
-      <button
-        type="button"
-        onClick={async () => {
-          try {
-            const response = await fetch(processedImage, { mode: 'cors' });
-            if (!response.ok) throw new Error('Image fetch failed');
+            {/* Save Image button under heading */}
+            {processedImage && (
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    let blobUrl;
 
-            const blob = await response.blob();
-            const blobUrl = window.URL.createObjectURL(blob);
+                    if (processedImage.startsWith("data:image")) {
+                      // ✅ Base64 image
+                      const byteString = atob(processedImage.split(",")[1]);
+                      const mimeString = processedImage
+                        .split(",")[0]
+                        .split(":")[1]
+                        .split(";")[0];
+                      const ab = new ArrayBuffer(byteString.length);
+                      const ia = new Uint8Array(ab);
+                      for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                      }
+                      const blob = new Blob([ab], { type: mimeString });
+                      blobUrl = window.URL.createObjectURL(blob);
+                    } else {
+                      // ✅ Normal image URL (remote or local)
+                      const response = await fetch(processedImage);
+                      if (!response.ok) throw new Error("Image fetch failed");
+                      const blob = await response.blob();
+                      blobUrl = window.URL.createObjectURL(blob);
+                    }
 
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = 'background-removed.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(blobUrl);
+                    const link = document.createElement("a");
+                    link.href = blobUrl;
+                    link.download = "background-removed.png";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(blobUrl);
 
-            toast.success("Image saved!", {
-              duration: 3000,
-              style: { background: '#334155', color: '#ffffff', border: '1px solid #00AD25' },
-              icon: '✅'
-            });
-          } catch (err) {
-            toast.error("Save failed!", {
-              duration: 3000,
-              style: { background: '#334155', color: '#ffffff', border: '1px solid #ff4d4d' },
-              icon: '⚠️'
-            });
-          }
-        }}
-        className="flex  sm:flex-row justify-center items-center gap-1 sm:gap-2 px-3 py-1.5 mt-2 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
-      >
-        <Download className="w-4 h-4" />
-      <span>Save PDF</span>
-      </button>
-    )}
-  </div>
+                    toast.success("Image saved!", {
+                      duration: 2500,
+                      className:
+                        "bg-transparent text-white shadow-none border-none",
+                      icon: "✅",
+                    });
+                  } catch (err) {
+                    toast.error("Save failed!", {
+                      duration: 2500,
+                      className:
+                        "bg-transparent text-white shadow-none border-none",
+                      icon: "⚠️",
+                    });
+                    console.error("Save error:", err);
+                  }
+                }}
+                className="flex sm:flex-row justify-center items-center gap-1 sm:gap-2 px-3 py-1.5 mt-2 text-sm bg-[#226BFF] hover:bg-[#1557d1] text-white rounded-lg transition-all"
+              >
+                <Download className="w-4 h-4" />
+                <span>Save Image</span>
+              </button>
+            )}
+          </div>
 
-  {!processedImage ? (
-    <div className="flex-1 flex justify-center items-center">
-      <div className="text-sm flex flex-col items-center gap-5 ">
-        <Eraser className="w-9 h-9" />
-        <p>Upload an image and click "Remove Background" to get started</p>
-      </div>
-    </div>
-  ) : (
-    <div className="mt-3 flex-1 overflow-y-scroll scrollbar-hide flex flex-col gap-4">
-      <img
-        src={processedImage}
-        alt="Processed"
-        className="max-w-full rounded-lg border border-white/10"
-      />
-    </div>
-  )}
-</div>
-
+          {!processedImage ? (
+            <div className="flex-1 flex justify-center items-center">
+              <div className="text-sm flex flex-col items-center gap-5 ">
+                <Eraser className="w-9 h-9" />
+                <p>
+                  Upload an image and click "Remove Background" to get started
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3 flex-1 overflow-y-scroll scrollbar-hide flex flex-col gap-4">
+              <img
+                src={processedImage}
+                alt="Processed"
+                className="max-w-full rounded-lg border border-white/10"
+              />
+            </div>
+          )}
+        </div>
       </div>
       <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
-        <h2 className="text-lg font-bold mb-3">Remove Background from Images Instantly</h2>
+        <h2 className="text-lg font-bold mb-3">
+          Remove Background from Images Instantly
+        </h2>
         <p className="text-sm mb-2">
-          Removing backgrounds from images has never been easier. With our AI-powered background remover, you can upload any image and get a clean, transparent background in seconds — perfect for product photos, profile pictures, or creative projects.
+          Removing backgrounds from images has never been easier. With our
+          AI-powered background remover, you can upload any image and get a
+          clean, transparent background in seconds — perfect for product photos,
+          profile pictures, or creative projects.
         </p>
         <p className="text-sm mb-2">
-          Simply upload your image, click “Remove Background,” and our system will automatically detect and remove the background while keeping your subject sharp and clear.
+          Simply upload your image, click “Remove Background,” and our system
+          will automatically detect and remove the background while keeping your
+          subject sharp and clear.
         </p>
       </div>
-
     </div>
-
-
-
   );
 };
 
