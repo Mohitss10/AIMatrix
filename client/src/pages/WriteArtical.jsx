@@ -62,7 +62,15 @@ const WriteArticle = () => {
   // 📌 Save as PDF
   const handleSavePDF = () => {
     if (!articleRef.current) return;
-    const element = articleRef.current;
+    const element = articleRef.current.cloneNode(true);
+
+    // ✅ Remove scroll limits so full content is captured
+    element.style.height = "auto";
+    element.style.overflow = "visible";
+
+    // ✅ Force black text
+    element.style.color = "black";
+
     const opt = {
       margin: 0.5,
       filename: "article.pdf",
@@ -70,6 +78,7 @@ const WriteArticle = () => {
       html2canvas: { scale: 2 },
       jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
     };
+
     html2pdf().set(opt).from(element).save();
 
     toast.success("PDF saved!", {
@@ -198,16 +207,25 @@ const WriteArticle = () => {
                     <h1 className="text-2xl font-bold mt-4 mb-2" {...props} />
                   ),
                   h2: ({ node, ...props }) => (
-                    <h2 className="text-xl font-semibold mt-3 mb-2" {...props} />
+                    <h2
+                      className="text-xl font-semibold mt-3 mb-2"
+                      {...props}
+                    />
                   ),
                   h3: ({ node, ...props }) => (
-                    <h3 className="text-lg font-semibold mt-2 mb-1" {...props} />
+                    <h3
+                      className="text-lg font-semibold mt-2 mb-1"
+                      {...props}
+                    />
                   ),
                   p: ({ node, ...props }) => (
                     <p className="text-sm leading-relaxed mb-2" {...props} />
                   ),
                   li: ({ node, ...props }) => (
-                    <li className="list-disc list-inside text-sm mb-1" {...props} />
+                    <li
+                      className="list-disc list-inside text-sm mb-1"
+                      {...props}
+                    />
                   ),
                 }}
               >
@@ -220,14 +238,17 @@ const WriteArticle = () => {
 
       {/* Info Section */}
       <div className="mt-6 p-6 bg-slate-700/10 border border-white/10 rounded-xl hidden sm:block">
-        <h2 className="text-lg font-bold mb-3">Write High-Quality Articles with AI</h2>
+        <h2 className="text-lg font-bold mb-3">
+          Write High-Quality Articles with AI
+        </h2>
         <p className="text-sm mb-2">
-          Our AI article writer helps you create engaging, well-structured, and SEO-friendly
-          content in just minutes — perfect for blogs, websites, and social media.
+          Our AI article writer helps you create engaging, well-structured, and
+          SEO-friendly content in just minutes — perfect for blogs, websites,
+          and social media.
         </p>
         <p className="text-sm">
-          Save time, boost productivity, and focus on your ideas while AI handles the heavy lifting
-          of writing.
+          Save time, boost productivity, and focus on your ideas while AI
+          handles the heavy lifting of writing.
         </p>
       </div>
     </div>
