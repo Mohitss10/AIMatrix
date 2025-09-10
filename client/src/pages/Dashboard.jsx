@@ -106,7 +106,7 @@ const Dashboard = () => {
       </div>
 
       {/* Video Section */}
-      <div className="mt-5 relative w-full h-[67vh] rounded-xl overflow-hidden shadow-lg border border-white/10">
+      <div className="mt-5 relative w-full h-[67vh] rounded-xl overflow-hidden shadow-lg ">
         {/* Loader */}
         {videoLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-20">
