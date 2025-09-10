@@ -28,7 +28,7 @@ const AccountPage = () => {
       className="relative flex justify-center items-center min-h-screen w-full bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage:
-          "url('https://authorfy.com/wp-content/themes/Authorfy/assets/img/masthead-inner-bg.svg')",
+          "",
       }}
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
@@ -42,7 +42,7 @@ const AccountPage = () => {
         onClick={() => navigate(-1)}
         className="
     absolute z-50 p-2 rounded-full hover:bg-black/10 transition
-    top-4 right-5 md:top-6 md:left-6 md:right-auto
+    top-8 right-5 md:top-6 md:left-6 md:right-auto
   "
       >
         <ArrowLeft className="w-6 h-6 text-black md:text-white" />
